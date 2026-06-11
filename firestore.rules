@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // PUBLIC READ: Allows MT5 EA to fetch signals without a Google Login
+    match /signals/{signalId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // PUBLIC READ/WRITE: Allows MT5 EA to report its heartbeat status
+    match /bridges/{bridgeId} {
+      allow read, write: if true;
+    }
+
+    // SECURE: Everything else requires authentication
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
